@@ -1,11 +1,12 @@
 [project]
 name = "dagster_portada_project"
-version = "0.0.2"
+version = "0.0.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9,<3.14"
 dependencies = [
     "dagster",
+    "py_portada_data_layer @ git+https://github.com/portada-git/py_portada_data_layer",
 ]
 
 [project.optional-dependencies]
