@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="dagster_portada_project",
-    version="0.0.1",
+    version="0.0.2",
     description='....... for PortADa project',
     author='PortADa team',
     author_email='jcbportada@gmail.com',
