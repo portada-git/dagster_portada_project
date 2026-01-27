@@ -1,0 +1,1 @@
+from boat_fact_ingestion_assets import ingestion

@@ -1,3 +1,2 @@
 dagster
-watchdog
-dagster_graphql
+

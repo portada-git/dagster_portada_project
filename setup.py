@@ -2,11 +2,14 @@ from setuptools import find_packages, setup
 
 setup(
     name="dagster_portada_project",
+    version="0.0.1",
+    description='....... for PortADa project',
+    author='PortADa team',
+    author_email='jcbportada@gmail.com',
+    license='MIT',
     packages=find_packages(exclude=["dagster_portada_project_tests"]),
     install_requires=[
-        "dagster",
-        "dagster_graphql",
-        "watchdog"
+        "dagster"
     ],
-    #extras_require={"dev": ["dagster-webserver", "pytest"]},
+    extras_require={"dev": ["dagster-webserver", "pytest"]},
 )
