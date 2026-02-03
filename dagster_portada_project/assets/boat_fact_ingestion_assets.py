@@ -14,7 +14,7 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
-    data, dest_path = layer.copy_ingested_raw_data(local_path=local_path, return_dest_path=True, user=user)
+    data, dest_path = layer.copy_ingested_raw_data("ship_entries", local_path=local_path, return_dest_path=True, user=user)
     context.run_config["ops"]["ingested_entry_file"]["config"]["source_path"] = dest_path
     context.log.info(f"Llegits {len(data)} registres de {local_path}")
     return {"source_path": dest_path, "data_json_array": data}
@@ -26,10 +26,15 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     # source_path = context.run_config["ops"]["ingested_entry_file"]["config"]["source_path"]
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
-    layer.save_raw_data(data=data, user=user)
+    layer.save_raw_data("ship_entries", data=data, user=user)
 
 
-ingestion = define_asset_job(name="ingestion", selection="*")
+ingestion = define_asset_job(
+    name="ingestion",
+    selection="*",
+    tags={"process": "ingestion"},
+)
+
 # @job()
 # def ingestion():
 #     ingested_entry_file()

@@ -5,7 +5,6 @@ from portada_data_layer.portada_delta_builder import PortadaBuilder
 from portada_data_layer.delta_data_layer import DeltaDataLayer
 
 
-
 class DeltaDataLayerResource(ConfigurableResource):
     """Resource that encapsulates Spark and Delta Lake management for Portada Project using Dagster"""
     config_path: str = ""
@@ -45,7 +44,7 @@ class DeltaDataLayerResource(ConfigurableResource):
 
     def get_boat_fact_layer(self):
         self.setup()
-        return self._layer_builder.build(PortadaBuilder.BOAT_NEWS_TYPE)
+        return self._layer_builder.build(PortadaBuilder.NEWS_TYPE)
         # self.setup()
         # _boat_fact_layer = self._layer_builder.build(PortadaBuilder.BOAT_NEWS_TYPE)
         # _boat_fact_layer.start_session()

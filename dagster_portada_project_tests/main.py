@@ -13,14 +13,20 @@ if __name__ == "__main__":
     if so == "Darwin":
         json_path_to_copy = "/Users/josepcanellas/Dropbox/feinesJordi/dades/resultats/prova"
         copy_path = "/Users/josepcanellas/tmp/json_data"
-        config_path = "/Users/josepcanellas/Dropbox/feinesJordi/github/dagster_portada_project/dagster_portada_project/config/delta_data_layer_config.json"
+        config_path = "/Users/josepcanellas/PycharmProjects/dagster_portada_project/config/delta_data_layer_config.json"
+        if os.path.exists(
+                os.path.join("/Users/josepcanellas/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
+            shutil.rmtree("/Users/josepcanellas/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
+
     else:
         json_path_to_copy = "/home/josep/Dropbox/feinesJordi/dades/resultats/prova"
         copy_path = "/home/josep/tmp/json_data"
-        config_path = "/home/josep/Dropbox/feinesJordi/github/dagster_portada_project/dagster_portada_project/config/delta_data_layer_config.json"
+        config_path = "/home/josep/PycharmProjects/dagster_portada_project/config/delta_data_layer_config.json"
+        if os.path.exists(
+                os.path.join("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
+            shutil.rmtree("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
 
-    if os.path.exists(os.path.join("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
-        shutil.rmtree("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
+
 
     json_name = "results_boatdata.extractor.json"
     os.makedirs(copy_path, exist_ok=True)
@@ -28,6 +34,7 @@ if __name__ == "__main__":
     json_path = os.path.join(copy_path, json_name)
     data_path = "ship_entries"
 
+    print(json_path)
     client = DagsterGraphQLClient(hostname="localhost", port_number=3000)
     client.submit_job_execution(
         job_name="ingestion",

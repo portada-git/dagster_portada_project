@@ -1,7 +1,7 @@
 from dagster import Definitions, load_assets_from_modules
-from assets.boat_fact_ingestion_assets import ingestion
-from resources.delta_data_layer_resource import DeltaDataLayerResource
-from assets import boat_fact_ingestion_assets
+from dagster_portada_project.assets.boat_fact_ingestion_assets import ingestion
+from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource
+from dagster_portada_project.assets import boat_fact_ingestion_assets
 
 # from .assets.boat_fact_ingestion_assets import ingestion
 # from .resources.delta_data_layer_resource import DeltaDataLayerResource
