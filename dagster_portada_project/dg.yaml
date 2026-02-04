@@ -1,4 +1,0 @@
-resources:
-  datalayer:
-    config:
-      config_path: "config/delta_data_layer_config.json"

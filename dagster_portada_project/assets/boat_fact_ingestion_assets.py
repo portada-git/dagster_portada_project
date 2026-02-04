@@ -10,10 +10,12 @@ logger = logging.getLogger("boat_fact_dagster")
 @asset
 def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     """Read local JSON file"""
+    job_name = context.run.pipeline_name
     local_path = context.run_config["ops"]["ingested_entry_file"]["config"]["local_path"]
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
+    layer.set_transformer_block(job_name)
     data, dest_path = layer.copy_ingested_raw_data("ship_entries", local_path=local_path, return_dest_path=True, user=user)
     context.run_config["ops"]["ingested_entry_file"]["config"]["source_path"] = dest_path
     context.log.info(f"Llegits {len(data)} registres de {local_path}")
@@ -22,10 +24,11 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
 @asset(ins={"data": AssetIn("ingested_entry_file")})
 def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerResource) -> None:
     """Copia el fitxer al Data Lake (ingesta)"""
+    job_name = context.run.pipeline_name
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
-    # source_path = context.run_config["ops"]["ingested_entry_file"]["config"]["source_path"]
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
+    layer.set_transformer_block(job_name)
     layer.save_raw_data("ship_entries", data=data, user=user)
 
 
