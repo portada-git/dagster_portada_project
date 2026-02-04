@@ -8,6 +8,7 @@ from portada_data_layer.delta_data_layer import DeltaDataLayer
 class DeltaDataLayerResource(ConfigurableResource):
     """Resource that encapsulates Spark and Delta Lake management for Portada Project using Dagster"""
     config_path: str = ""
+    job_name: str = ""
 
     def set_config_path(self, config_path: str):
         self.config_path = config_path
@@ -25,7 +26,8 @@ class DeltaDataLayerResource(ConfigurableResource):
 
     def get_delta_layer(self) -> DeltaDataLayer:
         self.setup()
-        return self.layer_builder.build()
+        jn = self.job_name
+        return self.layer_builder.build().set_transformer_block(jn)
         # self.setup()
         # _delta_data_layer = self.layer_builder.build()
         # _delta_data_layer.start_session()
@@ -44,7 +46,8 @@ class DeltaDataLayerResource(ConfigurableResource):
 
     def get_boat_fact_layer(self):
         self.setup()
-        return self._layer_builder.build(PortadaBuilder.NEWS_TYPE)
+        jn = self.job_name
+        return self._layer_builder.build(PortadaBuilder.NEWS_TYPE).set_transformer_block(jn)
         # self.setup()
         # _boat_fact_layer = self._layer_builder.build(PortadaBuilder.BOAT_NEWS_TYPE)
         # _boat_fact_layer.start_session()
@@ -63,7 +66,8 @@ class DeltaDataLayerResource(ConfigurableResource):
 
     def get_know_entities_layer(self):
         self.setup()
-        return self._layer_builder.build(PortadaBuilder.KNOWN_ENTITIES_TYPE)
+        jn = self.job_name
+        return self._layer_builder.build(PortadaBuilder.KNOWN_ENTITIES_TYPE).set_transformer_block(jn)
         # self.setup()
         # _know_entities_layer = self._layer_builder.build(PortadaBuilder.KNOWN_ENTITIES_TYPE)
         # _know_entities_layer.start_session()
