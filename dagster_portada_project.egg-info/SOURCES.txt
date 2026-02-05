@@ -5,6 +5,7 @@ setup.py
 dagster_portada_project/__init__.py
 dagster_portada_project/dagster_portada_data_layer.py
 dagster_portada_project/definitions.py
+dagster_portada_project/utilities.py
 dagster_portada_project.egg-info/PKG-INFO
 dagster_portada_project.egg-info/SOURCES.txt
 dagster_portada_project.egg-info/dependency_links.txt

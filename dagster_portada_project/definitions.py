@@ -1,4 +1,3 @@
-import json
 import os
 
 from dagster import Definitions, load_assets_from_modules
@@ -6,25 +5,14 @@ from dagster_pyspark import PySparkResource
 from dagster_portada_project.assets.boat_fact_ingestion_assets import ingestion
 from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource
 from dagster_portada_project.assets import boat_fact_ingestion_assets
+from dagster_portada_project.utilities import data_layer_builder_config_to_dagster_pyspark
 
 all_assets = load_assets_from_modules([boat_fact_ingestion_assets])
 
 cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config.json")
-if os.path.exists(cfg_path):
-    with open(cfg_path) as f:
-        cfg = json.load(f)
 
-    spark_config = {"spark.master": cfg.get("master", "local[*]")}
-    for item in cfg["configs"]:
-        k = next(iter(item))
-        spark_config[k] = item[k]
-    for k in cfg:
-        if k.startswith("spark."):
-            spark_config[k] = cfg[k]
-    if "protocol" in cfg and cfg["protocol"].startswith("hdfs://"):
-        spark_config["spark.hadoop.fs.defaultFS"] = cfg["protocol"]
-        spark_config["spark.hadoop.fs.hdfs.impl"] = "org.apache.hadoop.hdfs.DistributedFileSystem"
-    print(spark_config)
+if os.path.exists(cfg_path):
+    spark_config = data_layer_builder_config_to_dagster_pyspark(cfg_path)
     py_spark_resource = PySparkResource(spark_config=spark_config)
     defs = Definitions(
         assets=all_assets,
