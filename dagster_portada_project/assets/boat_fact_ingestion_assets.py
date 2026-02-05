@@ -12,6 +12,7 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     """Read local JSON file"""
     local_path = context.run_config["ops"]["ingested_entry_file"]["config"]["local_path"]
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
+    print(datalayer)
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
     data, dest_path = layer.copy_ingested_raw_data("ship_entries", local_path=local_path, return_dest_path=True, user=user)

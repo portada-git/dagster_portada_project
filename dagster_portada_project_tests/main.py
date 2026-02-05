@@ -1,3 +1,4 @@
+import json
 import platform
 
 from dagster import execute_job, DagsterInstance, materialize
@@ -34,16 +35,39 @@ if __name__ == "__main__":
     json_path = os.path.join(copy_path, json_name)
     data_path = "ship_entries"
 
-    print(json_path)
+    if os.path.exists(config_path):
+        with open(config_path) as f:
+            cfg = json.load(f)
+        spark_config = {}
+        for item in json.loads(json.dumps(cfg["configs"])):
+            k = next(iter(item))
+            spark_config[k]=item[k]
+        for k in cfg:
+            if k.startswith("spark."):
+                spark_config[k] = cfg[k]
+        if "master" in cfg:
+            spark_config["spark.master"] = cfg["master"]
+        if "app_name" in cfg:
+            spark_config["spark.app.name"] = cfg["app_name"]
+        if "protocol" in cfg and cfg["protocol"].startswith("hdfs://"):
+            spark_config["spark.hadoop.fs.defaultFS"] = cfg["protocol"]
+            spark_config["spark.hadoop.fs.hdfs.impl"] = "org.apache.hadoop.hdfs.DistributedFileSystem"
+
     client = DagsterGraphQLClient(hostname="localhost", port_number=3000)
     client.submit_job_execution(
         job_name="ingestion",
         run_config={
-            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user":"jcb"}}},
+            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb"}}},
             "resources": {
+                "py_spark_resource":{
+                    "config":{
+                        "spark_config": spark_config
+                    }
+                },
                 "datalayer": {
                     "config": {
                         "config_path": config_path,
+                        "job_name": "ingestion",
                     }
                 }
             }

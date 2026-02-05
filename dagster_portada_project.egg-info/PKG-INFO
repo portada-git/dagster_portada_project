@@ -1,12 +1,13 @@
 Metadata-Version: 2.4
 Name: dagster_portada_project
-Version: 0.0.7
+Version: 0.0.8
 Summary: Add your description here
 Author: PortADa team
 Author-email: jcbportada@gmail.com
 Requires-Python: <3.14,>=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: dagster
+Requires-Dist: dagster_pyspark
 Requires-Dist: py_portada_data_layer @ git+https://github.com/portada-git/py_portada_data_layer
 Provides-Extra: dev
 Requires-Dist: dagster-webserver; extra == "dev"
