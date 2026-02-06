@@ -36,7 +36,8 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
 @asset(ins={"path": AssetIn("raw_entries")})
 def update_data_base(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
     # Conexión
-    r = redis.Redis(host=redis_config.host, port=redis_config.port, decode_responses=True)
+    # r = redis.Redis(host=redis_config.host, port=redis_config.port, decode_responses=True)
+    r = redis.Redis(host="redis", port="6379", decode_responses=True)
     r.hset(f"file:{path}", "status", 1)
 
 
