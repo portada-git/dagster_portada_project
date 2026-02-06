@@ -4,7 +4,7 @@ import redis
 
 from portada_data_layer.portada_ingestion import BoatFactIngestion
 
-from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource
+from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource, RedisConfig
 
 logger = logging.getLogger("boat_fact_dagster")
 
@@ -34,10 +34,9 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
 
 
 @asset(ins={"path": AssetIn("raw_entries")})
-def update_data_base(context: AssetExecutionContext, path) -> None:
+def update_data_base(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
     # Conexión
-    redis_config = context.resources.redis_config
-    r = redis.Redis(host=redis_config["host"], port=redis_config["port"], decode_responses=True)
+    r = redis.Redis(host=redis_config.host, port=redis_config.port, decode_responses=True)
     r.hset(f"file:{path}", "status", 1)
 
 

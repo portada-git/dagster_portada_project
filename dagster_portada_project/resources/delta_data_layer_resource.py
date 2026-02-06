@@ -8,6 +8,11 @@ from portada_data_layer.delta_data_layer import DeltaDataLayer
 from dagster_portada_project.dagster_portada_data_layer import DagsterDataLayerBuilder
 
 
+class RedisConfig(ConfigurableResource):
+    host: str
+    port: str
+
+
 class DeltaDataLayerResource(ConfigurableResource):
     """Resource that encapsulates Spark and Delta Lake management for Portada Project using Dagster"""
     config_path: str = ""
