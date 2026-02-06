@@ -22,7 +22,7 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     return {"source_path": dest_path, "data_json_array": data}
 
 @asset(ins={"data": AssetIn("ingested_entry_file")})
-def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerResource) -> None:
+def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerResource) -> str:
     """Copia el fitxer al Data Lake (ingesta)"""
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     layer = datalayer.get_boat_fact_layer()
@@ -31,7 +31,7 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     return data["source_path"]
 
 @asset(ins={"path": AssetIn("raw_entries")})
-def update_data_base(context: AssetExecutionContext, path):
+def update_data_base(context: AssetExecutionContext, path) -> None:
     # Conexión
     r = redis.Redis(host='localhost', port=6379, decode_responses=True)
     r.hset(f"file:{path}", "status", 1)
