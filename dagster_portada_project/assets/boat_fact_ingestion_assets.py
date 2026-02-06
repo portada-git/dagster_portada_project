@@ -1,5 +1,6 @@
-from dagster import asset, AssetIn, Config, MetadataValue, AssetExecutionContext, job, define_asset_job
-import os, json, logging
+from dagster import asset, AssetIn, op, AssetExecutionContext,  define_asset_job
+import logging
+import redis
 
 from portada_data_layer.portada_ingestion import BoatFactIngestion
 
@@ -27,7 +28,13 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
     layer.save_raw_data("ship_entries", data=data, user=user)
+    return data["source_path"]
 
+@asset(ins={"path": AssetIn("raw_entries")})
+def update_data_base(context: AssetExecutionContext, path):
+    # Conexión
+    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    r.hset(f"file:{path}", "status", 1)
 
 ingestion = define_asset_job(
     name="ingestion",

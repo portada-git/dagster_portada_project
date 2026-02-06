@@ -1,3 +1,4 @@
 dagster
 dagster_pyspark
 py_portada_data_layer @ git+https://github.com/portada-git/py_portada_data_layer
+redis
