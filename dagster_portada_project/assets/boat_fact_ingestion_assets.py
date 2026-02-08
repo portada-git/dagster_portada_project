@@ -35,9 +35,11 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
 
 @asset(ins={"path": AssetIn("raw_entries")})
 def update_data_base(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
+    calling_redis_cfg = context.run_config["ops"]["ingested_entry_file"]["config"]["redis_config"] if "redis_config" in context.run_config["ops"]["ingested_entry_file"]["config"] else None
+    redis_host = redis_config.host if calling_redis_cfg is None else calling_redis_cfg["host"]
+    redis_port = redis_config.port if calling_redis_cfg is None else calling_redis_cfg["port"]
     # Conexión
-    # r = redis.Redis(host=redis_config.host, port=redis_config.port, decode_responses=True)
-    r = redis.Redis(host="redis", port="6379", decode_responses=True)
+    r = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
     r.hset(f"file:{path}", "status", 1)
 
 

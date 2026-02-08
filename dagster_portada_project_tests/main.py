@@ -57,7 +57,7 @@ if __name__ == "__main__":
     client.submit_job_execution(
         job_name="ingestion",
         run_config={
-            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb"}}},
+            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb", "redis_config": {"host": "h", "port": "1"}}}},
             "resources": {
                 "py_spark_resource":{
                     "config":{
