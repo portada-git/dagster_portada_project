@@ -58,12 +58,12 @@ def raw_entities(context: AssetExecutionContext, data, datalayer: DeltaDataLayer
 
 
 @asset(ins={"path": AssetIn("raw_entries")})
-def update_data_base(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
+def update_data_base_for_entry(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
     _update_data_base(context, path, redis_config)
 
 
 @asset(ins={"path": AssetIn("raw_entities")})
-def update_data_base(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
+def update_data_base_for_entity(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
     _update_data_base(context, path, redis_config)
 
 
