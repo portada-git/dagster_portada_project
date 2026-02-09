@@ -55,25 +55,25 @@ if __name__ == "__main__":
             spark_config["spark.hadoop.fs.hdfs.impl"] = "org.apache.hadoop.hdfs.DistributedFileSystem"
 
     client = DagsterGraphQLClient(hostname="localhost", port_number=3000)
-    # client.submit_job_execution(
-    #     job_name="entry_ingestion",
-    #     run_config={
-    #         "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb", "redis_config": {"host": "h", "port": "1"}}}},
-    #         "resources": {
-    #             "py_spark_resource":{
-    #                 "config":{
-    #                     "spark_config": spark_config
-    #                 }
-    #             },
-    #             "datalayer": {
-    #                 "config": {
-    #                     "config_path": config_path,
-    #                     "job_name": "ingestion",
-    #                 }
-    #             }
-    #         }
-    #     }
-    # )
+    client.submit_job_execution(
+        job_name="entry_ingestion",
+        run_config={
+            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb", "redis_config": {"host": "h", "port": "1"}}}},
+            "resources": {
+                "py_spark_resource":{
+                    "config":{
+                        "spark_config": spark_config
+                    }
+                },
+                "datalayer": {
+                    "config": {
+                        "config_path": config_path,
+                        "job_name": "ingestion",
+                    }
+                }
+            }
+        }
+    )
 
     client.submit_job_execution(
         job_name="entity_ingestion",

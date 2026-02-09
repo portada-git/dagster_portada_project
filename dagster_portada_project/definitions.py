@@ -10,7 +10,7 @@ boat_fact_all_assets = load_assets_from_modules([boat_fact_ingestion_assets], gr
 entity_all_assets = load_assets_from_modules([entity_ingestion_assets], group_name="grup_entity")
 
 entry_ingestion = define_asset_job(
-    name="./bu  ",
+    name="entry_ingestion",
     selection="group:grup_boat_fact",
     tags={"process": "ingestion"},
 )
@@ -44,13 +44,13 @@ else:
     })
 
     defs = Definitions(
-        assets=all_assets,
+        assets=[*boat_fact_all_assets, *entity_all_assets],
         resources={
             "py_spark_resource": py_spark_resource,
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),
             "redis_config": RedisConfig({"host": redis_host, "port": redis_port})
         },
-        jobs=[ingestion]
+        jobs=[entity_ingestion, entry_ingestion]
     )
 
 # from pathlib import Path
