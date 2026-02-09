@@ -15,6 +15,7 @@ dagster_portada_project/assets/__init__.py
 dagster_portada_project/assets/boat_fact_cleaning_assets.py
 dagster_portada_project/assets/boat_fact_disambiguation_assets.py
 dagster_portada_project/assets/boat_fact_ingestion_assets.py
+dagster_portada_project/assets/entity_ingestion_assets.py
 dagster_portada_project/defs/__init__.py
 dagster_portada_project/resources/__init__.py
 dagster_portada_project/resources/delta_data_layer_resource.py
