@@ -25,9 +25,9 @@ class RedisConfig(ConfigurableResource):
 
     def get_client(self, db=0):
         if db>0:
-            r = redis.Redis(host=host, port=port, decode_responses=True, db=db)
+            r = redis.Redis(host=self.host, port=self.port, decode_responses=True, db=db)
         else:
-            r = redis.Redis(host=host, port=port, decode_responses=True, db=db)
+            r = redis.Redis(host=self.host, port=self.port, decode_responses=True, db=db)
 
     def get_sequencer(self):
         return RedisSequencer(self.get_client(db=1))
