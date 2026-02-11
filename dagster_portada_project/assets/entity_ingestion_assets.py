@@ -19,7 +19,7 @@ def ingested_entity_file(context, datalayer: DeltaDataLayerResource) -> dict:
     layer.start_session()
     data, dest_path = layer.copy_ingested_raw_data(entity_type, local_path=local_path, return_dest_path=True)
     context.log.info(f"Llegits {len(data)} registres de {local_path}")
-    return {"source_path": dest_path, "data": data}
+    return {"local_path": local_path, "source_path": dest_path, "data": data}
 
 
 @asset(ins={"data": AssetIn("ingested_entity_file")})
@@ -29,7 +29,7 @@ def raw_entities(context: AssetExecutionContext, data, datalayer: DeltaDataLayer
     layer = datalayer.get_know_entities_layer()
     layer.start_session()
     layer.save_raw_data(type, data=data)
-    return data["source_path"]
+    return data["local_path"]
 
 
 @asset(ins={"path": AssetIn("raw_entities")})

@@ -19,7 +19,7 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     layer.start_session()
     data, dest_path = layer.copy_ingested_raw_data("ship_entries", local_path=local_path, return_dest_path=True, user=user)
     context.log.info(f"Llegits {len(data)} registres de {local_path}")
-    return {"source_path": dest_path, "data_json_array": data}
+    return {"local_path": local_path, "source_path": dest_path, "data_json_array": data}
 
 
 @asset(ins={"data": AssetIn("ingested_entry_file")})
@@ -29,7 +29,7 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
     layer.save_raw_data("ship_entries", data=data, user=user)
-    return data["source_path"]
+    return data["local-path"]
 
 
 @asset(ins={"path": AssetIn("raw_entries")})
