@@ -4,13 +4,33 @@ from dagster import ConfigurableResource
 from dagster_pyspark import PySparkResource
 from portada_data_layer.portada_delta_builder import PortadaBuilder
 from portada_data_layer.delta_data_layer import DeltaDataLayer
-
+import redis
 from dagster_portada_project.dagster_portada_data_layer import DagsterDataLayerBuilder
+
+
+class RedisSequencer:
+    def __init__(self, client):
+        self.client = client
+
+    def get_sequence_value(self, seq_name: str, increment: int = 1):
+        # El prefix 'seq:' ajuda a mantenir el Redis organitzat
+        key = f"seq:{seq_name}"
+        nv = self.client.incrby(key, increment)
+        return nv - increment
 
 
 class RedisConfig(ConfigurableResource):
     host: str
     port: str
+
+    def get_client(self, db=0):
+        if db>0:
+            r = redis.Redis(host=host, port=port, decode_responses=True, db=db)
+        else:
+            r = redis.Redis(host=host, port=port, decode_responses=True, db=db)
+
+    def get_sequencer(self):
+        return RedisSequencer(self.get_client(db=1))
 
 
 class DeltaDataLayerResource(ConfigurableResource):

@@ -23,10 +23,11 @@ def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
 
 
 @asset(ins={"data": AssetIn("ingested_entry_file")})
-def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerResource) -> str:
+def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerResource, redis_config: RedisConfig) -> str:
     """Copia el fitxer al Data Lake (ingesta)"""
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     layer = datalayer.get_boat_fact_layer()
+    layer.sequencer = redis_config.get_sequencer()
     layer.start_session()
     layer.save_raw_data("ship_entries", data=data, user=user)
     return data["local_path"]
