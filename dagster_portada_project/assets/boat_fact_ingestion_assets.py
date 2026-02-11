@@ -29,7 +29,7 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     layer = datalayer.get_boat_fact_layer()
     layer.start_session()
     layer.save_raw_data("ship_entries", data=data, user=user)
-    return data["local-path"]
+    return data["local_path"]
 
 
 @asset(ins={"path": AssetIn("raw_entries")})
