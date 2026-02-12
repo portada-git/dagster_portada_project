@@ -8,26 +8,9 @@ import redis
 from dagster_portada_project.dagster_portada_data_layer import DagsterDataLayerBuilder
 
 
-class RedisSequencer:
-    def __init__(self, client):
-        self.client = client
-
-    def get_sequence_value(self, seq_name: str, increment: int = 1):
-        # El prefix 'seq:' ajuda a mantenir el Redis organitzat
-        key = f"seq:{seq_name}"
-        nv = self.client.incrby(key, increment)
-        return nv - increment
-
-
 class RedisConfig(ConfigurableResource):
     host: str
     port: str
-
-    def get_client(self, db=0):
-        return redis.Redis(host=self.host, port=self.port, decode_responses=True, db=db)
-
-    def get_sequencer(self):
-        return RedisSequencer(self.get_client(db=1))
 
 
 class DeltaDataLayerResource(ConfigurableResource):

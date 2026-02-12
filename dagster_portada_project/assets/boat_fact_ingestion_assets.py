@@ -27,7 +27,7 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
     """Copia el fitxer al Data Lake (ingesta)"""
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     layer = datalayer.get_boat_fact_layer()
-    layer.sequencer = redis_config.get_sequencer()
+    layer.set_sequencer_params(redis_config.host, redis_config.port, 1)
     layer.start_session()
     layer.save_raw_data("ship_entries", data=data, user=user)
     return data["local_path"]
