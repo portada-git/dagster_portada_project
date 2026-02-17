@@ -48,23 +48,6 @@ def create_failure_sensor(job_list, sensor_name):
         context.log.error(f"🚨 Sensor activado por fallo en {asset_actual}")
         context.log.error(missatge)
         
-        # 6. Opcional: Enviar a Slack si está configurado
-        slack_webhook = os.getenv("SLACK_WEBHOOK_URL")
-        if slack_webhook:
-            try:
-                import requests
-                payload = {
-                    "text": missatge,
-                    "username": "Dagster Alert Bot",
-                    "icon_emoji": ":warning:"
-                }
-                response = requests.post(slack_webhook, json=payload, timeout=10)
-                if response.status_code == 200:
-                    context.log.info("✅ Notificación enviada a Slack")
-                else:
-                    context.log.warning(f"⚠️ Error al enviar a Slack: {response.status_code}")
-            except Exception as e:
-                context.log.error(f"❌ Error al enviar notificación a Slack: {str(e)}")
         
         # 7. Opcional: Guardar en archivo de log
         try:
