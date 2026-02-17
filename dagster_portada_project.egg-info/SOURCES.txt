@@ -19,3 +19,5 @@ dagster_portada_project/assets/entity_ingestion_assets.py
 dagster_portada_project/defs/__init__.py
 dagster_portada_project/resources/__init__.py
 dagster_portada_project/resources/delta_data_layer_resource.py
+dagster_portada_project/sensors/__init__.py
+dagster_portada_project/sensors/ingestion_sensors.py

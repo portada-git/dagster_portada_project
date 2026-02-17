@@ -22,13 +22,22 @@ entity_ingestion = define_asset_job(
     tags={"process": "ingestion"},
 )
 
-
 cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config.json")
 redis_host = os.getenv("REDIS_HOST", "l")
 redis_port = os.getenv("REDIS_PORT", "5700")
 
 jobs = [entity_ingestion, entry_ingestion]
-ingestion_error_sensor = create_failure_sensor(jobs, "error_sensor")
+
+redi_cfg = RedisConfig(host=redis_host, port=redis_port)
+
+
+def callback_error(param, log):
+    log.info(f"host: {redi_cfg.host}")
+    log.info(f"port: {redi_cfg.port}")
+    log.info(f"params: {param}")
+
+
+ingestion_error_sensor = create_failure_sensor(jobs, "error_sensor", callback_error)
 
 if os.path.exists(cfg_path):
     spark_config = data_layer_builder_config_to_dagster_pyspark(cfg_path)
@@ -38,7 +47,7 @@ if os.path.exists(cfg_path):
         resources={
             "py_spark_resource": py_spark_resource,
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),
-            "redis_config": RedisConfig(host=redis_host, port=redis_port)
+            "redis_config": redi_cfg
         },
         sensors=[ingestion_error_sensor],
         jobs=jobs

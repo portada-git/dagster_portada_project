@@ -8,7 +8,6 @@ from dagster_portada_project.resources.delta_data_layer_resource import DeltaDat
 
 logger = logging.getLogger("boat_fact_dagster")
 
-
 @asset
 def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
     """Read local JSON file"""
