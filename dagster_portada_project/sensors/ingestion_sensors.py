@@ -1,32 +1,86 @@
 from dagster import run_failure_sensor, RunFailureSensorContext, DagsterEventType
+import os
 
 
 def create_failure_sensor(job_list, sensor_name):
-    @run_failure_sensor(monitored_jobs=job_list, name=sensor_name)
+    """
+    Crea un sensor que monitorea fallos en los jobs especificados.
+    
+    Args:
+        job_list: Lista de jobs a monitorear
+        sensor_name: Nombre del sensor
+    """
+    # Extraer nombres de jobs (Dagster espera strings, no objetos)
+    job_names = [job.name for job in job_list]
+    
+    @run_failure_sensor(
+        monitored_jobs=job_names,
+        name=sensor_name,
+        minimum_interval_seconds=30
+    )
     def ingestion_error_sensor(context: RunFailureSensorContext):
-        # 1. Recuperar tota la CONFIGURACIÓ (Punt 1 de cada asset)
+        """Sensor que se activa cuando falla un job de ingesta"""
+        
+        # 1. Recuperar configuración
         run_config = context.dagster_run.run_config
-
-        # 2. Recuperar l'ERROR i l'asset que ha fallat
+        
+        # 2. Recuperar error y asset que falló
         asset_actual = context.failure_event.step_key
         error_msg = context.failure_event.message
-
-        # 3. Recuperar valors de RETORN (Punt 2)
-        # Atenció: Només podràs veure el valor si el primer asset el va registrar com a metadata.
-        # Si no, hauries de carregar-lo manualment des del teu storage (S3/Base de dades).
-
-        # Intentem buscar metadata de l'asset 1 si ha fallat el 2 o el 3
-        # Això requereix consultar l'històric d'esdeveniments:
+        run_id = context.dagster_run.run_id
+        
+        # 3. Recuperar metadata de assets anteriores
         records = context.instance.get_records_for_run(
-            run_id=context.dagster_run.run_id,
+            run_id=run_id,
             of_type=DagsterEventType.ASSET_MATERIALIZATION
         )
-
-        # 4. Notificació de Slack amb el resum
+        
+        # 4. Construir mensaje
         missatge = (
-            f"❌ Fallada a l'asset: {asset_actual}\n"
-            f"⚙️ Config emprada: {run_config.get('ops', {}).get(asset_actual, {})}\n"
-            f"⚠️ Error: {error_msg}"
+            f"❌ Fallada en job de ingesta\n"
+            f"🔑 Run ID: {run_id}\n"
+            f"📦 Asset: {asset_actual}\n"
+            f"⚙️ Config: {run_config.get('ops', {}).get(asset_actual, {})}\n"
+            f"⚠️ Error: {error_msg[:500]}"
         )
-
+        
+        # 5. IMPORTANTE: Registrar en logs (esto hace que el sensor sea visible)
+        context.log.error(f"🚨 Sensor activado por fallo en {asset_actual}")
+        context.log.error(missatge)
+        
+        # 6. Opcional: Enviar a Slack si está configurado
+        slack_webhook = os.getenv("SLACK_WEBHOOK_URL")
+        if slack_webhook:
+            try:
+                import requests
+                payload = {
+                    "text": missatge,
+                    "username": "Dagster Alert Bot",
+                    "icon_emoji": ":warning:"
+                }
+                response = requests.post(slack_webhook, json=payload, timeout=10)
+                if response.status_code == 200:
+                    context.log.info("✅ Notificación enviada a Slack")
+                else:
+                    context.log.warning(f"⚠️ Error al enviar a Slack: {response.status_code}")
+            except Exception as e:
+                context.log.error(f"❌ Error al enviar notificación a Slack: {str(e)}")
+        
+        # 7. Opcional: Guardar en archivo de log
+        try:
+            log_dir = "logs/sensor_failures"
+            os.makedirs(log_dir, exist_ok=True)
+            log_file = f"{log_dir}/failure_{run_id}.txt"
+            with open(log_file, 'w') as f:
+                f.write(missatge)
+                f.write("\n\n=== Metadata de assets anteriores ===\n")
+                for record in records:
+                    f.write(f"\nAsset: {record.event_log_entry.dagster_event.asset_key}\n")
+                    if hasattr(record.event_log_entry.dagster_event, 'step_materialization_data'):
+                        metadata = record.event_log_entry.dagster_event.step_materialization_data.materialization.metadata
+                        f.write(f"Metadata: {metadata}\n")
+            context.log.info(f"📝 Error guardado en {log_file}")
+        except Exception as e:
+            context.log.warning(f"⚠️ No se pudo guardar log en archivo: {str(e)}")
+    
     return ingestion_error_sensor
