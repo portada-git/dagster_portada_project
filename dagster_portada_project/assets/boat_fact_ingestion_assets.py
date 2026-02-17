@@ -4,7 +4,7 @@ import redis
 
 from portada_data_layer.portada_ingestion import BoatFactIngestion
 
-from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource, RedisConfig
+from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource, RedisConfig, RedisClient
 
 logger = logging.getLogger("boat_fact_dagster")
 
@@ -34,27 +34,13 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
 
 @asset(ins={"path": AssetIn("raw_entries")})
 def update_data_base_for_entry(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
-    calling_redis_cfg = context.run_config["ops"]["ingested_entry_file"]["config"]["redis_config"] if "redis_config" in context.run_config["ops"]["ingested_entry_file"]["config"] else None
-    redis_host = redis_config.host if calling_redis_cfg is None else calling_redis_cfg["host"]
-    redis_port = redis_config.port if calling_redis_cfg is None else calling_redis_cfg["port"]
-    
-    # Connection
-    r = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
-    
-    # Buscar el archivo por file_path y actualizar su status
-    file_keys = r.keys("file:*")
-    file_found = False
-    
-    for file_key in file_keys:
-        stored_path = r.hget(file_key, "file_path")
-        if stored_path and stored_path == path:
-            # Actualizar status a 1 (Processing)
-            r.hset(file_key, "status", "1")
-            context.log.info(f"Updated status to Processing for file: {file_key}")
-            file_found = True
-            break
-    
-    if not file_found:
-        context.log.warning(f"File not found in Redis with path: {path}")
+    redis_client = RedisConfig.get_redis_client()
+    file_found = redis_client.update_file(path, RedisClient.PROCESSED_STATUS)
+
+    if file_found:
+        context.log.info(f"Updated status to Processing for entity file: {path}")
+    else:
+        context.log.warning(f"Entity file not found in Redis with path: {path}")
+
 
 

@@ -8,9 +8,38 @@ import redis
 from dagster_portada_project.dagster_portada_data_layer import DagsterDataLayerBuilder
 
 
+class RedisClient:
+    PROCESSED_STATUS = "1"
+    ERROR_STATUS = "2"
+
+    def __init__(self, redis_host, redis_port):
+        # Connection
+        self.redis = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
+
+    def update_file(self, path, status):
+        # Buscar el archivo por file_path y actualizar su status
+        file_keys = self.redis.keys("file:*")
+        file_found = False
+
+        for file_key in file_keys:
+            stored_path = self.redis.hget(file_key, "file_path")
+            if stored_path and stored_path == path:
+                # Actualizar status a 1 (Processing)
+                self.redis.hset(file_key, "status", str(status))
+                file_found = True
+                break
+        return file_found
+
+
 class RedisConfig(ConfigurableResource):
     host: str
     port: str
+
+    def get_redis_client(self):
+        return RedisClient(
+            redis_host=self.host,
+            redis_port=self.port
+        )
 
 
 class DeltaDataLayerResource(ConfigurableResource):
