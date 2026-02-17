@@ -34,7 +34,7 @@ def raw_entities(context: AssetExecutionContext, data, datalayer: DeltaDataLayer
 
 @asset(ins={"path": AssetIn("raw_entities")})
 def update_data_base_for_entity(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
-    redis_client = RedisConfig.get_redis_client()
+    redis_client = redis_config.get_redis_client()
     file_found = redis_client.update_file(path, RedisClient.PROCESSED_STATUS)
 
     if file_found:

@@ -34,7 +34,7 @@ def raw_entries(context: AssetExecutionContext, data, datalayer: DeltaDataLayerR
 
 @asset(ins={"path": AssetIn("raw_entries")})
 def update_data_base_for_entry(context: AssetExecutionContext, path, redis_config: RedisConfig) -> None:
-    redis_client = RedisConfig.get_redis_client()
+    redis_client = redis_config.get_redis_client()
     file_found = redis_client.update_file(path, RedisClient.PROCESSED_STATUS)
 
     if file_found:
