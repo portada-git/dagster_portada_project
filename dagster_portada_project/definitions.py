@@ -5,6 +5,7 @@ from dagster_pyspark import PySparkResource
 from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource, RedisConfig
 from dagster_portada_project.assets import boat_fact_ingestion_assets, entity_ingestion_assets
 from dagster_portada_project.utilities import data_layer_builder_config_to_dagster_pyspark
+from dagster_portada_project.sensors.ingestion_sensors import create_failure_sensor
 
 boat_fact_all_assets = load_assets_from_modules([boat_fact_ingestion_assets], group_name="grup_boat_fact")
 entity_all_assets = load_assets_from_modules([entity_ingestion_assets], group_name="grup_entity")
@@ -26,6 +27,9 @@ cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config.json")
 redis_host = os.getenv("REDIS_HOST", "l")
 redis_port = os.getenv("REDIS_PORT", "5700")
 
+jobs = [entity_ingestion, entry_ingestion]
+ingestion_error_sensor = create_failure_sensor(jobs, "error_sensor")
+
 if os.path.exists(cfg_path):
     spark_config = data_layer_builder_config_to_dagster_pyspark(cfg_path)
     py_spark_resource = PySparkResource(spark_config=spark_config)
@@ -36,7 +40,8 @@ if os.path.exists(cfg_path):
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),
             "redis_config": RedisConfig(host=redis_host, port=redis_port)
         },
-        jobs=[entity_ingestion, entry_ingestion]
+        sensors=[ingestion_error_sensor],
+        jobs=jobs
     )
 else:
     py_spark_resource = PySparkResource(spark_config={
@@ -50,7 +55,8 @@ else:
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),
             "redis_config": RedisConfig({"host": redis_host, "port": redis_port})
         },
-        jobs=[entity_ingestion, entry_ingestion]
+        sensors=[ingestion_error_sensor],
+        jobs=jobs
     )
 
 # from pathlib import Path
