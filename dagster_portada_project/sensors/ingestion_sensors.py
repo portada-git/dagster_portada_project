@@ -83,8 +83,6 @@ def create_failure_sensor(job_list, sensor_name, callback):
             "error_msg": exception_msg
         }
 
-        callback(param, context.log)
-
         # Construir mensaje
         message = (
             f" Fallada en job de ingesta\n"
@@ -99,5 +97,7 @@ def create_failure_sensor(job_list, sensor_name, callback):
         # IMPORTANTE: Registrar en logs (esto hace que el sensor sea visible)
         context.log.error(f"🚨 Sensor activado por fallo en {asset_actual}")
         context.log.error(message)
+
+        callback(param, context.log)
     
     return ingestion_error_sensor
