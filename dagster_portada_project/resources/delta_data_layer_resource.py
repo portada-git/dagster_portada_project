@@ -66,7 +66,7 @@ class DeltaDataLayerResource(ConfigurableResource):
     def get_boat_fact_layer(self):
         self.setup()
         jn = self.job_name
-        return self._layer_builder.build(PortadaBuilder.NEWS_TYPE).set_transformer_block(jn)
+        return self._layer_builder.build(PortadaBuilder.BOAT_NEWS_TYPE).set_transformer_block(jn)
 
     def get_know_entities_layer(self):
         self.setup()

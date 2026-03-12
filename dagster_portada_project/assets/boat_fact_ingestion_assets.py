@@ -9,12 +9,13 @@ from dagster_portada_project.resources.delta_data_layer_resource import DeltaDat
 logger = logging.getLogger("boat_fact_dagster")
 
 @asset
-def ingested_entry_file(context, datalayer: DeltaDataLayerResource) -> dict:
+def ingested_entry_file(context, datalayer: DeltaDataLayerResource, redis_config: RedisConfig) -> dict:
     """Read local JSON file"""
     local_path = context.run_config["ops"]["ingested_entry_file"]["config"]["local_path"]
     user = context.run_config["ops"]["ingested_entry_file"]["config"]["user"]
     print(datalayer)
     layer = datalayer.get_boat_fact_layer()
+    layer.set_sequencer_params(redis_config.host, redis_config.port, 1)
     layer.start_session()
     data, dest_path = layer.copy_ingested_raw_data("ship_entries", local_path=local_path, return_dest_path=True, user=user)
     context.log.info(f"Llegits {len(data)} registres de {local_path}")
