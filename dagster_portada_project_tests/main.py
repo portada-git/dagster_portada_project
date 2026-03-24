@@ -23,7 +23,7 @@ if __name__ == "__main__":
         json_path_to_copy = "/home/josep/Dropbox/feinesJordi/dades/resultats/prova"
         copy_path = "/home/josep/tmp/json_data"
         yaml_copy_path = "/home/josep/tmp/prova_portada_res.yaml"
-        config_path = "/home/josep/PycharmProjects/dagster_portada_project/config/delta_data_layer_config.json"
+        config_path = "/home/josep/PycharmProjects/dagster_portada_project/dagster_portada_project_tests/delta_data_layer_config.json"
         if os.path.exists(
                 os.path.join("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
             shutil.rmtree("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     client.submit_job_execution(
         job_name="entry_ingestion",
         run_config={
-            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb", "redis_config": {"host": "h", "port": "1"}}}},
+            "ops": {"ingested_entry_file": {"config": {"local_path": json_path, "user": "jcb"}}},
             "resources": {
                 "py_spark_resource":{
                     "config":{

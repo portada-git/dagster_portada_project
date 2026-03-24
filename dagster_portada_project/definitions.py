@@ -23,7 +23,7 @@ entity_ingestion = define_asset_job(
 )
 
 cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config.json")
-redis_host = os.getenv("REDIS_HOST", "l")
+redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = os.getenv("REDIS_PORT", "5700")
 
 jobs = [entity_ingestion, entry_ingestion]
