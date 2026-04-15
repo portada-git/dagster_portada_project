@@ -3,12 +3,14 @@ import os
 from dagster import Definitions, load_assets_from_modules, define_asset_job
 from dagster_pyspark import PySparkResource
 from dagster_portada_project.resources.delta_data_layer_resource import DeltaDataLayerResource, RedisConfig
-from dagster_portada_project.assets import boat_fact_ingestion_assets, entity_ingestion_assets
+from dagster_portada_project.assets import boat_fact_ingestion_assets, entity_ingestion_assets, \
+    boat_fact_cleaning_assets
 from dagster_portada_project.utilities import data_layer_builder_config_to_dagster_pyspark
 from dagster_portada_project.sensors.ingestion_sensors import create_failure_sensor
 
 boat_fact_all_assets = load_assets_from_modules([boat_fact_ingestion_assets], group_name="grup_boat_fact")
 entity_all_assets = load_assets_from_modules([entity_ingestion_assets], group_name="grup_entity")
+boat_fact_cleaning_assets = load_assets_from_modules([boat_fact_cleaning_assets], group_name="grup_boat_fact_cleaning")
 
 entry_ingestion = define_asset_job(
     name="entry_ingestion",
@@ -22,11 +24,17 @@ entity_ingestion = define_asset_job(
     tags={"process": "ingestion"},
 )
 
-cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config.json")
+boat_fact_cleaning = define_asset_job(
+    name="boat_fact_cleaning",
+    selection="group:grup_boat_fact_cleaning",
+    tags={"process": "cleaning"},
+)
+
+cfg_path = os.getenv("DATA_LAYER_CONFIG", "config/delta_data_layer_config_linux.json")
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = os.getenv("REDIS_PORT", "5700")
 
-jobs = [entity_ingestion, entry_ingestion]
+jobs = [entity_ingestion, entry_ingestion, boat_fact_cleaning]
 
 redi_cfg = RedisConfig(host=redis_host, port=redis_port)
 
@@ -43,7 +51,7 @@ if os.path.exists(cfg_path):
     spark_config = data_layer_builder_config_to_dagster_pyspark(cfg_path)
     py_spark_resource = PySparkResource(spark_config=spark_config)
     defs = Definitions(
-        assets=[*boat_fact_all_assets, *entity_all_assets],
+        assets=[*boat_fact_all_assets, *entity_all_assets, *boat_fact_cleaning_assets],
         resources={
             "py_spark_resource": py_spark_resource,
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),
@@ -58,7 +66,7 @@ else:
     })
 
     defs = Definitions(
-        assets=[*boat_fact_all_assets, *entity_all_assets],
+        assets=[*boat_fact_all_assets, *entity_all_assets, *boat_fact_cleaning_assets],
         resources={
             "py_spark_resource": py_spark_resource,
             "datalayer": DeltaDataLayerResource(py_spark_resource=py_spark_resource),

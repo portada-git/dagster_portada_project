@@ -2,6 +2,7 @@
 import json
 from dagster import ConfigurableResource
 from dagster_pyspark import PySparkResource
+from portada_data_layer import BoatFactCleaning
 from portada_data_layer.portada_delta_builder import PortadaBuilder
 from portada_data_layer.delta_data_layer import DeltaDataLayer
 import redis
@@ -72,3 +73,8 @@ class DeltaDataLayerResource(ConfigurableResource):
         self.setup()
         jn = self.job_name
         return self._layer_builder.build(PortadaBuilder.KNOWN_ENTITIES_TYPE).set_transformer_block(jn)
+
+    def get_cleaning_boat_fact_layer(self, schema_json, mapping_json):
+        self.setup()
+        jn = self.job_name
+        return self._layer_builder.build(BoatFactCleaning.__name__).set_transformer_block(jn).use_schema(schema_json).use_mapping_to_clean_chars(mapping_json)

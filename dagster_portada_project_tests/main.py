@@ -13,7 +13,7 @@ if __name__ == "__main__":
         json_path_to_copy = "/Users/josepcanellas/Dropbox/feinesJordi/dades/resultats/prova"
         copy_path = "/Users/josepcanellas/tmp/json_data"
         yaml_copy_path = "/Users/josepcanellas/tmp/prova_portada_res.yaml"
-        config_path = "/Users/josepcanellas/PycharmProjects/dagster_portada_project/config/delta_data_layer_config.json"
+        config_path = "/Users/josepcanellas/PycharmProjects/dagster_portada_project/config/delta_data_layer_config_linux.json"
         if os.path.exists(
                 os.path.join("/Users/josepcanellas/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
             shutil.rmtree("/Users/josepcanellas/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         json_path_to_copy = "/home/josep/Dropbox/feinesJordi/dades/resultats/prova"
         copy_path = "/home/josep/tmp/json_data"
         yaml_copy_path = "/home/josep/tmp/prova_portada_res.yaml"
-        config_path = "/home/josep/PycharmProjects/dagster_portada_project/dagster_portada_project_tests/delta_data_layer_config.json"
+        config_path = "/dagster_portada_project_tests/delta_data_layer_config_linux.json"
         if os.path.exists(
                 os.path.join("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")):
             shutil.rmtree("/home/josep/Dropbox/feinesJordi/implementacio/delta_lake/delta_test/portada_project")
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                 "datalayer": {
                     "config": {
                         "config_path": config_path,
-                        "job_name": "ingestion",
+                        "job_name": "entry_ingestion",
                     }
                 }
             }
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     client.submit_job_execution(
         job_name="entity_ingestion",
         run_config={
-            "ops": {"ingested_entity_file": {"config": {"local_path": yaml_copy_path, "entity_type": "ship_type"}}},
+            "ops": {"first_entry_cleaning": {"config": {"local_path": yaml_copy_path, "entity_type": "ship_type"}}},
             "resources": {
                 "py_spark_resource":{
                     "config":{
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 "datalayer": {
                     "config": {
                         "config_path": config_path,
-                        "job_name": "ingestion",
+                        "job_name": "entity_ingestion",
                     }
                 }
             }
